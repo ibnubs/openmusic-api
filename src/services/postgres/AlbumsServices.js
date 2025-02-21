@@ -48,7 +48,7 @@ class AlbumsService {
             ...result.rows.map(mapDBToModel)[0],
             songs: resultSongs.rows,
         }
-        // return result.rows.map(mapDBToModel)[0];
+        
     }
 
     async editAlbumById(id, { name, year }) {

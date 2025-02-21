@@ -18,5 +18,14 @@ const mapSongDBToModel = ({id, title, year, performer, genre, duration, album_id
     updatedAt: updated_at,
 });
 
+const mapPlaylistSongDBToModel = ({
+    id, 
+    title,
+    performer,
+    }) => ({
+    id,
+    title,
+    performer
+});
 
-module.exports = { mapDBToModel, mapSongDBToModel };
+module.exports = { mapDBToModel, mapSongDBToModel, mapPlaylistSongDBToModel };
