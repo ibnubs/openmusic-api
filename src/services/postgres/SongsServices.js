@@ -77,7 +77,7 @@ class SongsService {
 
         if (!result.rowCount) {
             throw new NotFoundError(`Gagal memperbarui lagu. ${id} tidak ditemukan`);
-        };
+        }
     }
 
     async deleteSongById(id) {

@@ -62,7 +62,7 @@ class AlbumsService {
 
         if (!result.rowCount) {
             throw new NotFoundError(`Gagal memperbarui album. ${id} tidak ditemukan`);
-        };
+        }
     }
 
     async deleteAlbumById(id) {

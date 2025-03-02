@@ -1,7 +1,7 @@
 // mengimpor dotenv dan menjalankan konfigurasinya
-require("dotenv").config();
+require('dotenv').config();
 
-const Hapi = require("@hapi/hapi");
+const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
 
 //Albums
@@ -37,6 +37,10 @@ const users = require('./api/users');
 const UsersServices = require('./services/postgres/UsersServices');
 const UsersValidator = require('./validator/users');
 
+// Exports
+const _exports = require('./api/exports/');
+const ProducerService = require('./services/rabbitmq/ProducerService');
+const ExportsValidator = require('./validator/exports');
 
 const ClientError = require('./exceptions/ClientError');
 
@@ -46,14 +50,14 @@ const init = async () => {
     const usersServices = new UsersServices();
     const authenticationsService = new AuthenticationsService();
     const playlistsService = new PlaylistsService();
-const collaborationsService = new CollaborationsService();
+    const collaborationsService = new CollaborationsService();
 
     const server = Hapi.server({
         port: process.env.PORT,
-        host: process.env.HOST !== "production" ? "localhost" : "0.0.0.0",
+        host: process.env.HOST !== 'production' ? 'localhost' : '0.0.0.0',
         routes: {
             cors: {
-                origin: ["*"],
+                origin: ['*'],
             },
         },
     });
@@ -66,7 +70,7 @@ const collaborationsService = new CollaborationsService();
     ]);
     
     // mendefinisikan strategy autentikasi jwt
-    server.auth.strategy("openmusic_jwt", "jwt", {
+    server.auth.strategy('openmusic_jwt', 'jwt', {
         keys: process.env.ACCESS_TOKEN_KEY,
         verify: {
             aud: false,
@@ -128,9 +132,17 @@ const collaborationsService = new CollaborationsService();
               validator: PlaylistsValidator,
             },
           },
+          {
+            plugin: _exports,
+            options: {
+              producerService: ProducerService,
+              playlistsService,
+              validator: ExportsValidator,
+            },
+          },
     ]);
 
-    server.ext("onPreResponse", (request, h) => {
+    server.ext('onPreResponse', (request, h) => {
         // mendapatkan konteks response dari request
         const { response } = request;
 
@@ -138,7 +150,7 @@ const collaborationsService = new CollaborationsService();
             // penanganan client error secara internal.
             if (response instanceof ClientError) {
                 const newResponse = h.response({
-                    status: "fail",
+                    status: 'fail',
                     message: response.message,
                 });
                 newResponse.code(response.statusCode);

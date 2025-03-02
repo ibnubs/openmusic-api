@@ -1,5 +1,4 @@
 const autoBind = require('auto-bind');
-const { object } = require('joi');
 
 class PlaylistsHandler {
   constructor(service, validator) {
