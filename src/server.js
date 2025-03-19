@@ -3,6 +3,8 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
+const path = require('path');
 
 //Albums
 const albums = require('./api/albums');
@@ -42,6 +44,16 @@ const _exports = require('./api/exports/');
 const ProducerService = require('./services/rabbitmq/ProducerService');
 const ExportsValidator = require('./validator/exports');
 
+// Likes
+const userAlbumLikes = require('./api/userAlbumLikes');
+const UserAlbumLikesService = require('./services/postgres/UserAlbumLikesService');
+
+// Cache
+const CacheService = require('./services/redis/CacheService');
+
+// storage
+const StorageService = require('./services/storage/StorageService');
+
 const ClientError = require('./exceptions/ClientError');
 
 const init = async () => {
@@ -51,6 +63,9 @@ const init = async () => {
     const authenticationsService = new AuthenticationsService();
     const playlistsService = new PlaylistsService();
     const collaborationsService = new CollaborationsService();
+    const storageService = new StorageService(path.resolve(__dirname, 'api/albums/images'));
+    const userAlbumLikesService = new UserAlbumLikesService();
+    const cacheService = new CacheService();
 
     const server = Hapi.server({
         port: process.env.PORT,
@@ -65,7 +80,10 @@ const init = async () => {
     // registrasi plugin eksternal
     await server.register([
         {
-        plugin: Jwt,
+            plugin: Jwt,
+        },
+        {
+            plugin: Inert,
         },
     ]);
     
@@ -92,6 +110,7 @@ const init = async () => {
             options: {
                 service: albumsServices,
                 validator: AlbumsValidator,
+                storageService,
             },
         },
         {
@@ -138,6 +157,14 @@ const init = async () => {
               producerService: ProducerService,
               playlistsService,
               validator: ExportsValidator,
+            },
+          },
+          {
+            plugin: userAlbumLikes,
+            options: {
+              service: userAlbumLikesService,
+              albumsServices,
+              cacheService,
             },
           },
     ]);

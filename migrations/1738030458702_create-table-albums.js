@@ -12,6 +12,10 @@ exports.up = (pgm) => {
       type: 'INTEGER',
       notNull: true,
     },
+    coverUrl: {
+      type: 'varchar(255)',
+      onDelete: 'CASCADE',
+    },
     created_at: {
       type: 'TIMESTAMP',
       notNull: true,
