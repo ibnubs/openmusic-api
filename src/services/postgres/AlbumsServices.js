@@ -13,17 +13,20 @@ class AlbumsService {
         const id = `album-${nanoid(16)}`;
         const createdAt = new Date().toISOString();
         const updatedAt = createdAt;
-
+    
         const query = {
-            text: 'INSERT INTO albums VALUES($1, $2, $3, $4, $5) RETURNING id',
+            // Perbaiki dengan menyebutkan kolom secara eksplisit
+            text: `INSERT INTO albums(id, name, year, created_at, updated_at) 
+                   VALUES($1, $2, $3, $4, $5) RETURNING id`,
             values: [id, name, year, createdAt, updatedAt],
         };
+        
         const result = await this._pool.query(query);
-
+    
         if (!result.rows[0].id) {
             throw new InvariantError('Album gagal ditambahkan');
         }
-
+    
         return result.rows[0].id;
     }
 
